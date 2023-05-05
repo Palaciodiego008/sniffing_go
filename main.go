@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	devName string = "eth0"
+	devName string = "en0"
 	found   bool   = false
 )
 
