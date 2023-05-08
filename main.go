@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 
@@ -43,10 +44,27 @@ func main() {
 	if err := handle.SetBPFFilter("tcp and port 443"); err != nil {
 		log.Panic("Error setting BPF filter: %w", err.Error())
 	}
-
 	// Show all the filtered packets received on channel returned from gopacket.NewPacketSource()
 	source := gopacket.NewPacketSource(handle, handle.LinkType())
 	for packet := range source.Packets() {
-		fmt.Println(packet)
+		if appLayer := packet.ApplicationLayer(); appLayer != nil {
+			payload := appLayer.Payload()
+			if len(payload) > 0 {
+				log.Printf("Got a packet with payload: %v", payload)
+			}
+
+			//if the bytes in the payload contain and HTTP Post request this will print out all the data that was sent, including the username and password or some other sensitive data
+			if bytes.Contains(payload, []byte("POST")) || bytes.Contains(payload, []byte("post")) || bytes.Contains(payload, []byte("USER")) || bytes.Contains(payload, []byte("user")) || bytes.Contains(payload, []byte("PASS")) || bytes.Contains(payload, []byte("pass")) {
+				fmt.Println("-------->", string(payload))
+				/// printing the credentials
+				fmt.Println("")
+
+			}
+
+		} else {
+			log.Println("No application layer found in packet")
+		}
+
 	}
+
 }
