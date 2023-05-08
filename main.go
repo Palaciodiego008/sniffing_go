@@ -58,6 +58,7 @@ func main() {
 				fmt.Println("-------->", string(payload))
 				/// printing the credentials
 				fmt.Println("")
+				// Task: send the credentials to a remote server (File, HTTP, etc.) for this we are going to use a docker container and create a ftp server.
 
 			}
 
